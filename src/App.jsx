@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyea0_LbccfGuR6N_N8r0pRQOctCYp8u3NlRPl5trd4jxlLLz-q3X-crqkF8ngZbz6x/exec';
 
 const EVENT = {
   name: "ملتقى الإبداع التقني",
@@ -42,15 +43,26 @@ export default function App() {
   const [done, setDone] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
-  const submit = (e) => {
-    e.preventDefault();
-    const err = {};
-    if (form.name.trim().length < 3) err.name = "اكتب اسمك الكامل";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) err.email = "البريد الإلكتروني غير صحيح";
-    if (!/^05\d{8}$/.test(form.phone)) err.phone = "اكتب رقم جوال يبدأ بـ 05 ويتكون من 10 أرقام";
-    setErrors(err);
-    if (!Object.keys(err).length) setDone(true);
-  };
+  const submit = async (e) => {
+  e.preventDefault();
+  const err = {};
+  if (form.name.trim().length < 3) err.name = "اكتب اسمك الكامل";
+  if (!/^\S+@\S+\.\S+$/.test(form.email)) err.email = "البريد الإلكتروني غير صحيح";
+  if (!/^05\d{8}$/.test(form.phone)) err.phone = "رقم جوال يبدأ بـ 05 ويتكون من 10 أرقام";
+  setErrors(err);
+  if (Object.keys(err).length) return;
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: new URLSearchParams(form),
+    });
+    setDone(true);
+  } catch (error) {
+    alert('صار خطأ، حاول مرة ثانية');
+  }
+};
 
   return (
     <div dir="rtl" lang="ar">
